@@ -46,7 +46,7 @@ jobs:
           echo "::error::To run '${{ inputs.action }}' you must type '${{ inputs.action }}' in the confirm box."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Require OIDC role variable
         run: |
