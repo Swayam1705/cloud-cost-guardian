@@ -1,0 +1,84 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1" # weekly, Monday 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependencies:
+    name: pip-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements-dev.txt
+      - name: Audit installed dependency tree
+        # --skip-editable skips only this project's own editable install; pip-audit still exits 1
+        # on any vulnerability in boto3/pydantic/etc. (--strict would fail on the skip itself).
+        run: pip-audit --skip-editable
+
+  sast:
+    name: Bandit-style SAST (ruff S rules) + Semgrep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff semgrep
+      - name: Ruff security rules
+        run: ruff check . --select S --output-format=github
+      - name: Semgrep (community rules, no account needed)
+        run: semgrep scan --config p/python --config p/secrets --config p/dockerfile --error --metrics=off
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  container:
+    name: Trivy image scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t cloud-cost-guardian:scan .
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: cloud-cost-guardian:scan
+          format: table
+          exit-code: "1"
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+  iac:
+    name: Checkov (Terraform + Dockerfile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform,dockerfile
+          quiet: true
+          soft_fail: false
+          skip_check: CKV_AWS_50,CKV_AWS_115,CKV_AWS_116,CKV_AWS_117,CKV_AWS_173,CKV_AWS_272,CKV_AWS_26,CKV_AWS_158,CKV_AWS_338
+          # Skipped checks are documented in docs/security.md (X-Ray, DLQ, VPC, reserved
+          # concurrency, code signing, KMS on SNS/logs, 1-year log retention) — each adds
+          # cost or complexity that is out of scope for an optional educational deployment.

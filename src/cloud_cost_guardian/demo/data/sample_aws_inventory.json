@@ -1,0 +1,43 @@
+{
+  "_comment": "Demo inventory for Cloud Cost Guardian. Ages are relative (age_days) so the demo never goes stale. Scenario: a mid-size company that accumulated forgotten resources.",
+  "region": "us-east-1",
+  "ebs_volumes": [
+    { "id": "vol-0a1b2c3d4e5f60001", "size_gib": 100, "volume_type": "gp2", "state": "available", "age_days": 93, "availability_zone": "us-east-1a", "tags": { "Name": "old-jenkins-data", "Team": "platform" } },
+    { "id": "vol-0a1b2c3d4e5f60002", "size_gib": 500, "volume_type": "gp3", "state": "available", "age_days": 210, "availability_zone": "us-east-1b", "tags": { "Name": "legacy-db-restore-test" } },
+    { "id": "vol-0a1b2c3d4e5f60003", "size_gib": 50, "volume_type": "io1", "state": "available", "age_days": 45, "availability_zone": "us-east-1a", "tags": {} },
+    { "id": "vol-0a1b2c3d4e5f60004", "size_gib": 200, "volume_type": "gp3", "state": "in-use", "age_days": 400, "attached_instance_id": "i-0f1e2d3c4b5a60001", "availability_zone": "us-east-1a", "tags": { "Name": "api-root", "Environment": "production" } },
+    { "id": "vol-0a1b2c3d4e5f60005", "size_gib": 80, "volume_type": "gp3", "state": "available", "age_days": 120, "availability_zone": "us-east-1c", "tags": { "Name": "forensics-hold", "cost-guardian-protected": "true" } },
+    { "id": "vol-0a1b2c3d4e5f60006", "size_gib": 30, "volume_type": "gp3", "state": "available", "age_days": 2, "availability_zone": "us-east-1a", "tags": { "Name": "migration-scratch" } },
+    { "id": "vol-0a1b2c3d4e5f60007", "size_gib": 40, "volume_type": "sc1", "state": "available", "age_days": 150, "availability_zone": "us-east-1b", "tags": { "Name": "prod-archive", "Environment": "Production" } }
+  ],
+  "ec2_instances": [
+    { "id": "i-0f1e2d3c4b5a60001", "instance_type": "m5.xlarge", "state": "running", "age_days": 400, "availability_zone": "us-east-1a", "tags": { "Name": "api-prod-1", "Environment": "production" } },
+    { "id": "i-0f1e2d3c4b5a60002", "instance_type": "m5.2xlarge", "state": "running", "age_days": 180, "availability_zone": "us-east-1b", "tags": { "Name": "batch-worker-old", "Team": "data" } },
+    { "id": "i-0f1e2d3c4b5a60003", "instance_type": "t3.large", "state": "running", "age_days": 60, "availability_zone": "us-east-1a", "tags": { "Name": "staging-web" } },
+    { "id": "i-0f1e2d3c4b5a60004", "instance_type": "c5.xlarge", "state": "running", "age_days": 90, "availability_zone": "us-east-1c", "tags": { "Name": "ml-experiments" } },
+    { "id": "i-0f1e2d3c4b5a60005", "instance_type": "t3.medium", "state": "stopped", "age_days": 200, "availability_zone": "us-east-1a", "tags": { "Name": "dev-box-stopped" } },
+    { "id": "i-0f1e2d3c4b5a60006", "instance_type": "r5.large", "state": "running", "age_days": 300, "availability_zone": "us-east-1b", "tags": { "Name": "cache-node", "cost-guardian-protected": "true" } },
+    { "id": "i-0f1e2d3c4b5a60007", "instance_type": "t3.small", "state": "running", "age_days": 10, "tags": {} },
+    { "id": "i-0f1e2d3c4b5a60008", "instance_type": "t3.medium", "state": "running", "age_days": 3, "tags": { "Name": "new-service" } }
+  ],
+  "elastic_ips": [
+    { "allocation_id": "eipalloc-0aa000000000000a1", "public_ip": "203.0.113.10", "association_id": "eipassoc-0bb0000000000000b1", "instance_id": "i-0f1e2d3c4b5a60001", "tags": { "Name": "api-prod-eip" } },
+    { "allocation_id": "eipalloc-0aa000000000000a2", "public_ip": "203.0.113.11", "tags": { "Name": "old-bastion-eip" } },
+    { "allocation_id": "eipalloc-0aa000000000000a3", "public_ip": "203.0.113.12", "tags": { "Name": "dns-reserved", "cost-guardian-protected": "true" } }
+  ],
+  "rds_instances": [
+    { "id": "reporting-db", "engine": "postgres", "instance_class": "db.m5.xlarge", "status": "available", "allocated_storage_gib": 200, "multi_az": false, "age_days": 365, "tags": { "Team": "analytics" } },
+    { "id": "orders-db", "engine": "mysql", "instance_class": "db.r5.large", "status": "available", "allocated_storage_gib": 500, "multi_az": true, "age_days": 700, "tags": { "Environment": "production" } },
+    { "id": "legacy-crm-db", "engine": "postgres", "instance_class": "db.t3.large", "status": "available", "allocated_storage_gib": 100, "multi_az": false, "age_days": 500, "tags": { "Name": "legacy-crm" } },
+    { "id": "audit-archive-db", "engine": "postgres", "instance_class": "db.t3.medium", "status": "available", "allocated_storage_gib": 50, "multi_az": false, "age_days": 800, "tags": { "cost-guardian-protected": "true" } },
+    { "id": "metrics-less-db", "engine": "mariadb", "instance_class": "db.t3.small", "status": "available", "allocated_storage_gib": 20, "multi_az": false, "age_days": 5, "tags": {} }
+  ],
+  "snapshots": [
+    { "id": "snap-0c1d2e3f4a5b60001", "volume_id": "vol-0a1b2c3d4e5f60001", "volume_size_gib": 100, "age_days": 400, "description": "jenkins backup 2025-Q1", "tags": { "Name": "jenkins-backup" } },
+    { "id": "snap-0c1d2e3f4a5b60002", "volume_id": "vol-0a1b2c3d4e5f60002", "volume_size_gib": 500, "age_days": 120, "description": "pre-migration copy", "tags": {} },
+    { "id": "snap-0c1d2e3f4a5b60003", "volume_id": "vol-deleted", "volume_size_gib": 250, "age_days": 95, "description": "orphaned snapshot; source volume deleted", "tags": { "Name": "orphan" } },
+    { "id": "snap-0c1d2e3f4a5b60004", "volume_id": "vol-0a1b2c3d4e5f60004", "volume_size_gib": 200, "age_days": 3, "description": "nightly api-root", "tags": { "Name": "api-root-nightly" } },
+    { "id": "snap-0c1d2e3f4a5b60005", "volume_id": "vol-0a1b2c3d4e5f60004", "volume_size_gib": 200, "age_days": 730, "description": "compliance retention 7y", "tags": { "cost-guardian-protected": "true", "Retention": "7y" } },
+    { "id": "snap-0c1d2e3f4a5b60006", "volume_id": "vol-0a1b2c3d4e5f60002", "volume_size_gib": 500, "age_days": 100, "state": "pending", "description": "in-progress copy", "tags": {} }
+  ]
+}

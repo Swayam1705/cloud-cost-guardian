@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# OPTIONAL: plan/apply the Terraform scanner deployment.
+#
+# * Never runs automatically. Manual `workflow_dispatch` only.
+# * `apply` requires typing the literal word "apply" AND the environment
+#   `aws-optional` (create it in repo settings with required reviewers).
+# * Uses GitHub OIDC -> short-lived AWS credentials. No long-lived keys.
+#   Set repo variable AWS_ROLE_TO_ASSUME to the IAM role ARN that trusts
+#   token.actions.githubusercontent.com (see docs/deployment.md).
+# * Deploying creates real AWS resources that may incur charges.
+# ---------------------------------------------------------------------------
+name: Deploy (optional, manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "plan | apply | destroy"
+        required: true
+        default: plan
+        type: choice
+        options: [plan, apply, destroy]
+      confirm:
+        description: 'Type "apply" or "destroy" to confirm a mutating action'
+        required: false
+        default: ""
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: aws-optional
+    env:
+      TF_IN_AUTOMATION: "true"
+      AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Refuse unconfirmed mutating actions
+        if: inputs.action != 'plan' && inputs.confirm != inputs.action
+        run: |
+          echo "::error::To run '${{ inputs.action }}' you must type '${{ inputs.action }}' in the confirm box."
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: Require OIDC role variable
+        run: |
+          if [ -z "${{ vars.AWS_ROLE_TO_ASSUME }}" ]; then
+            echo "::error::Repository variable AWS_ROLE_TO_ASSUME is not set. See docs/deployment.md."; exit 1; fi
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: ccg-deploy-${{ github.run_id }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build Lambda package
+        working-directory: .
+        run: bash scripts/build_lambda_package.sh
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.*"
+
+      - run: terraform init -input=false
+      - run: terraform validate
+
+      - name: Plan
+        run: terraform plan -input=false -no-color -var="aws_region=${AWS_REGION}" -out=tfplan
+
+      - name: Apply
+        if: inputs.action == 'apply'
+        run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Destroy
+        if: inputs.action == 'destroy'
+        run: terraform destroy -input=false -auto-approve -var="aws_region=${AWS_REGION}"

@@ -1,0 +1,48 @@
+{
+  "catalog_name": "ccg-reference-2026-01",
+  "currency": "USD",
+  "disclaimer": "Reference on-demand list prices for estimation only. Not a billing source. Update pricing/data/default_catalog.json or point CCG_PRICING_CATALOG_PATH to your own catalog.",
+  "hours_per_month": 730,
+  "regions": {
+    "default": {
+      "ebs_gb_month": { "gp2": 0.10, "gp3": 0.08, "io1": 0.125, "io2": 0.125, "st1": 0.045, "sc1": 0.015, "standard": 0.05 },
+      "snapshot_gb_month": 0.05,
+      "eip_idle_hourly": 0.005,
+      "ec2_hourly": {
+        "t2.nano": 0.0058, "t2.micro": 0.0116, "t2.small": 0.023, "t2.medium": 0.0464, "t2.large": 0.0928,
+        "t3.nano": 0.0052, "t3.micro": 0.0104, "t3.small": 0.0208, "t3.medium": 0.0416, "t3.large": 0.0832, "t3.xlarge": 0.1664,
+        "t3a.medium": 0.0376, "t3a.large": 0.0752,
+        "m5.large": 0.096, "m5.xlarge": 0.192, "m5.2xlarge": 0.384, "m5.4xlarge": 0.768,
+        "m6i.large": 0.096, "m6i.xlarge": 0.192,
+        "c5.large": 0.085, "c5.xlarge": 0.17, "c5.2xlarge": 0.34,
+        "r5.large": 0.126, "r5.xlarge": 0.252, "r5.2xlarge": 0.504
+      },
+      "rds_hourly": {
+        "db.t3.micro": 0.017, "db.t3.small": 0.034, "db.t3.medium": 0.068, "db.t3.large": 0.136,
+        "db.t4g.micro": 0.016, "db.t4g.medium": 0.065,
+        "db.m5.large": 0.171, "db.m5.xlarge": 0.342, "db.m5.2xlarge": 0.684,
+        "db.m6i.large": 0.171, "db.m6i.xlarge": 0.342,
+        "db.r5.large": 0.24, "db.r5.xlarge": 0.48, "db.r5.2xlarge": 0.96
+      },
+      "rds_engine_multiplier": { "postgres": 1.0, "mysql": 1.0, "mariadb": 1.0, "aurora-postgresql": 1.2, "aurora-mysql": 1.2, "oracle-se2": 1.6, "sqlserver-ex": 1.0, "sqlserver-se": 2.5 },
+      "rds_multi_az_multiplier": 2.0
+    },
+    "ap-south-1": {
+      "ebs_gb_month": { "gp2": 0.114, "gp3": 0.0912, "io1": 0.131, "io2": 0.131, "st1": 0.051, "sc1": 0.0174, "standard": 0.08 },
+      "snapshot_gb_month": 0.05,
+      "eip_idle_hourly": 0.005
+    }
+  },
+  "rds_downsize_map": {
+    "db.t3.large": "db.t3.medium", "db.t3.medium": "db.t3.small", "db.t3.small": "db.t3.micro",
+    "db.m5.2xlarge": "db.m5.xlarge", "db.m5.xlarge": "db.m5.large", "db.m5.large": "db.t3.large",
+    "db.m6i.xlarge": "db.m6i.large", "db.m6i.large": "db.t3.large",
+    "db.r5.2xlarge": "db.r5.xlarge", "db.r5.xlarge": "db.r5.large", "db.r5.large": "db.m5.large"
+  },
+  "ec2_downsize_map": {
+    "m5.4xlarge": "m5.2xlarge", "m5.2xlarge": "m5.xlarge", "m5.xlarge": "m5.large", "m5.large": "t3.large",
+    "c5.2xlarge": "c5.xlarge", "c5.xlarge": "c5.large", "c5.large": "t3.medium",
+    "r5.2xlarge": "r5.xlarge", "r5.xlarge": "r5.large", "r5.large": "m5.large",
+    "t3.xlarge": "t3.large", "t3.large": "t3.medium", "t3.medium": "t3.small", "t3.small": "t3.micro"
+  }
+}

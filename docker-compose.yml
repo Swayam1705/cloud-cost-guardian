@@ -1,0 +1,31 @@
+# Local, zero-cost usage. No external services are required.
+#   docker compose up --build            -> runs a demo scan, artifacts land in ./artifacts
+#   docker compose run --rm ccg cleanup --dry-run
+#   docker compose run --rm ccg cleanup --resource vol-0a1b2c3d4e5f60001 --approve
+#
+# Optional AWS read-only mode (your own credentials, mounted read-only, never baked in):
+#   docker compose run --rm -v ~/.aws:/app/.aws:ro \
+#     -e AWS_SHARED_CREDENTIALS_FILE=/app/.aws/credentials -e AWS_CONFIG_FILE=/app/.aws/config \
+#     -e AWS_PROFILE=readonly ccg scan --mode aws
+services:
+  ccg:
+    build: .
+    image: cloud-cost-guardian:local
+    container_name: cloud-cost-guardian
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CCG_MODE: ${CCG_MODE:-demo}
+      CCG_LOG_LEVEL: ${CCG_LOG_LEVEL:-INFO}
+    volumes:
+      - ./artifacts:/app/artifacts
+      - ./data:/app/data
+    command: ["scan", "--mode", "demo"]
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

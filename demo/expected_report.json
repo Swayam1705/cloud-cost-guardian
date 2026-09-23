@@ -1,0 +1,210 @@
+{
+  "_comment": "Expected demo-scan outcome derived from demo/sample_aws_inventory.json + default policy + built-in pricing catalog. tests/test_demo_and_config.py asserts the live demo scan matches this exactly.",
+  "summary": {
+    "resources_scanned": 29,
+    "total_findings": 18,
+    "estimated_monthly_waste": 858.16,
+    "estimated_annual_waste": 10297.92,
+    "estimated_monthly_savings": 481.48,
+    "estimated_annual_savings": 5777.76,
+    "findings_by_category": {
+      "old_snapshot": 4,
+      "rds_rightsizing": 3,
+      "unassociated_eip": 2,
+      "unattached_ebs": 6,
+      "underutilized_ec2": 3
+    },
+    "findings_by_severity": {
+      "high": 3,
+      "medium": 8,
+      "low": 7
+    },
+    "protected_findings": 6,
+    "cleanup_eligible": 7,
+    "recommendations_only": 5
+  },
+  "finding_status": {
+    "i-0f1e2d3c4b5a60002": "recommendation",
+    "reporting-db": "recommendation",
+    "i-0f1e2d3c4b5a60004": "recommendation",
+    "legacy-crm-db": "recommendation",
+    "vol-0a1b2c3d4e5f60002": "cleanup",
+    "snap-0c1d2e3f4a5b60002": "cleanup",
+    "audit-archive-db": "protected",
+    "i-0f1e2d3c4b5a60006": "protected",
+    "snap-0c1d2e3f4a5b60003": "cleanup",
+    "snap-0c1d2e3f4a5b60005": "protected",
+    "vol-0a1b2c3d4e5f60001": "cleanup",
+    "vol-0a1b2c3d4e5f60005": "protected",
+    "vol-0a1b2c3d4e5f60003": "cleanup",
+    "snap-0c1d2e3f4a5b60001": "cleanup",
+    "eipalloc-0aa000000000000a2": "cleanup",
+    "eipalloc-0aa000000000000a3": "protected",
+    "vol-0a1b2c3d4e5f60006": "recommendation",
+    "vol-0a1b2c3d4e5f60007": "protected"
+  },
+  "findings": [
+    {
+      "resource_id": "i-0f1e2d3c4b5a60002",
+      "category": "underutilized_ec2",
+      "severity": "high",
+      "estimated_monthly_cost": 280.32,
+      "estimated_monthly_savings": 140.16,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potentially underutilized: average CPU 1.83% (peak 6.50%) over 168h, below threshold 5.0%"
+    },
+    {
+      "resource_id": "reporting-db",
+      "category": "rds_rightsizing",
+      "severity": "high",
+      "estimated_monthly_cost": 249.66,
+      "estimated_monthly_savings": 124.83,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potential right-sizing candidate: average CPU 4.13% (peak 14.00%) over 336h on db.m5.xlarge"
+    },
+    {
+      "resource_id": "i-0f1e2d3c4b5a60004",
+      "category": "underutilized_ec2",
+      "severity": "high",
+      "estimated_monthly_cost": 124.1,
+      "estimated_monthly_savings": 62.05,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potentially underutilized: average CPU 3.27% (peak 9.90%) over 96h, below threshold 5.0%"
+    },
+    {
+      "resource_id": "legacy-crm-db",
+      "category": "rds_rightsizing",
+      "severity": "medium",
+      "estimated_monthly_cost": 99.28,
+      "estimated_monthly_savings": 49.64,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potential right-sizing candidate: average CPU 2.41% (peak 5.00%) over 240h on db.t3.large"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60002",
+      "category": "unattached_ebs",
+      "severity": "medium",
+      "estimated_monthly_cost": 40.0,
+      "estimated_monthly_savings": 40.0,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is in state 'available' with no attachment for 210 days"
+    },
+    {
+      "resource_id": "snap-0c1d2e3f4a5b60002",
+      "category": "old_snapshot",
+      "severity": "medium",
+      "estimated_monthly_cost": 25.0,
+      "estimated_monthly_savings": 25.0,
+      "recommended_action": "delete_snapshot",
+      "reason": "Snapshot is 120 days old (threshold 90 days)"
+    },
+    {
+      "resource_id": "audit-archive-db",
+      "category": "rds_rightsizing",
+      "severity": "medium",
+      "estimated_monthly_cost": 49.64,
+      "estimated_monthly_savings": 24.82,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potential right-sizing candidate: average CPU 0.60% (peak 1.20%) over 336h on db.t3.medium"
+    },
+    {
+      "resource_id": "i-0f1e2d3c4b5a60006",
+      "category": "underutilized_ec2",
+      "severity": "medium",
+      "estimated_monthly_cost": 91.98,
+      "estimated_monthly_savings": 21.9,
+      "recommended_action": "review_rightsizing",
+      "reason": "Potentially underutilized: average CPU 0.91% (peak 2.10%) over 168h, below threshold 5.0%"
+    },
+    {
+      "resource_id": "snap-0c1d2e3f4a5b60003",
+      "category": "old_snapshot",
+      "severity": "medium",
+      "estimated_monthly_cost": 12.5,
+      "estimated_monthly_savings": 12.5,
+      "recommended_action": "delete_snapshot",
+      "reason": "Snapshot is 95 days old (threshold 90 days)"
+    },
+    {
+      "resource_id": "snap-0c1d2e3f4a5b60005",
+      "category": "old_snapshot",
+      "severity": "medium",
+      "estimated_monthly_cost": 10.0,
+      "estimated_monthly_savings": 10.0,
+      "recommended_action": "delete_snapshot",
+      "reason": "Snapshot is 730 days old (threshold 90 days)"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60001",
+      "category": "unattached_ebs",
+      "severity": "medium",
+      "estimated_monthly_cost": 10.0,
+      "estimated_monthly_savings": 10.0,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is in state 'available' with no attachment for 93 days"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60005",
+      "category": "unattached_ebs",
+      "severity": "low",
+      "estimated_monthly_cost": 6.4,
+      "estimated_monthly_savings": 6.4,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is in state 'available' with no attachment for 120 days"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60003",
+      "category": "unattached_ebs",
+      "severity": "low",
+      "estimated_monthly_cost": 6.25,
+      "estimated_monthly_savings": 6.25,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is in state 'available' with no attachment for 45 days"
+    },
+    {
+      "resource_id": "snap-0c1d2e3f4a5b60001",
+      "category": "old_snapshot",
+      "severity": "low",
+      "estimated_monthly_cost": 5.0,
+      "estimated_monthly_savings": 5.0,
+      "recommended_action": "delete_snapshot",
+      "reason": "Snapshot is 400 days old (threshold 90 days)"
+    },
+    {
+      "resource_id": "eipalloc-0aa000000000000a2",
+      "category": "unassociated_eip",
+      "severity": "low",
+      "estimated_monthly_cost": 3.65,
+      "estimated_monthly_savings": 3.65,
+      "recommended_action": "release_eip",
+      "reason": "Elastic IP is allocated but not associated with any instance or network interface"
+    },
+    {
+      "resource_id": "eipalloc-0aa000000000000a3",
+      "category": "unassociated_eip",
+      "severity": "low",
+      "estimated_monthly_cost": 3.65,
+      "estimated_monthly_savings": 3.65,
+      "recommended_action": "release_eip",
+      "reason": "Elastic IP is allocated but not associated with any instance or network interface"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60006",
+      "category": "unattached_ebs",
+      "severity": "low",
+      "estimated_monthly_cost": 2.4,
+      "estimated_monthly_savings": 2.4,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is unattached but only 2 days old (minimum 7); flagged for awareness, not cleanup"
+    },
+    {
+      "resource_id": "vol-0a1b2c3d4e5f60007",
+      "category": "unattached_ebs",
+      "severity": "low",
+      "estimated_monthly_cost": 0.6,
+      "estimated_monthly_savings": 0.6,
+      "recommended_action": "delete_volume",
+      "reason": "Volume is in state 'available' with no attachment for 150 days"
+    }
+  ]
+}

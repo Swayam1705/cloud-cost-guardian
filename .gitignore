@@ -1,0 +1,47 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+config.local.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.log
+
+# Generated artifacts / local state
+/artifacts/
+/data/
+*.zip
+
+# Terraform
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+tfplan
+lambda_package.zip
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

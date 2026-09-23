@@ -1,0 +1,11 @@
+# Copy to terraform.tfvars (git-ignored) and edit. No secrets belong here.
+aws_region          = "us-east-1"
+# aws_profile         = "my-profile"
+name_prefix         = "cloud-cost-guardian"
+schedule_expression = "rate(7 days)"
+# notification_email  = "you@example.com"
+log_retention_days  = 14
+enable_remediation_role = false
+scanner_config = {
+  CCG_PROTECTED_TAGS = "cost-guardian-protected=true,Environment=production"
+}

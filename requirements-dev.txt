@@ -1,0 +1,8 @@
+-r requirements.txt
+pytest>=8,<10
+pytest-cov>=5,<8
+moto[ec2,rds]>=5,<6
+ruff>=0.5
+mypy>=1.10
+pip-audit>=2.7
+boto3-stubs[ec2,rds,cloudwatch,sns]>=1.34

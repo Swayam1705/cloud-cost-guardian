@@ -1,0 +1,16 @@
+{
+  "_comment": "Simulated CloudWatch CPUUtilization series. 'hours' expands into hourly datapoints; 'peak' inserts one spike so evidence shows both average and peak. Resources absent here have no metrics (edge case).",
+  "metrics": {
+    "i-0f1e2d3c4b5a60001": { "metric": "CPUUtilization", "hours": 72, "average": 42.5, "peak": 88.0 },
+    "i-0f1e2d3c4b5a60002": { "metric": "CPUUtilization", "hours": 168, "average": 1.8, "peak": 6.5 },
+    "i-0f1e2d3c4b5a60003": { "metric": "CPUUtilization", "hours": 72, "average": 23.0, "peak": 61.0 },
+    "i-0f1e2d3c4b5a60004": { "metric": "CPUUtilization", "hours": 96, "average": 3.2, "peak": 9.9 },
+    "i-0f1e2d3c4b5a60005": { "metric": "CPUUtilization", "hours": 0 },
+    "i-0f1e2d3c4b5a60006": { "metric": "CPUUtilization", "hours": 168, "average": 0.9, "peak": 2.1 },
+    "i-0f1e2d3c4b5a60008": { "metric": "CPUUtilization", "hours": 6, "average": 1.0, "peak": 1.5 },
+    "reporting-db": { "metric": "CPUUtilization", "hours": 336, "average": 4.1, "peak": 14.0 },
+    "orders-db": { "metric": "CPUUtilization", "hours": 336, "average": 38.7, "peak": 79.0 },
+    "legacy-crm-db": { "metric": "CPUUtilization", "hours": 240, "average": 2.4, "peak": 5.0 },
+    "audit-archive-db": { "metric": "CPUUtilization", "hours": 336, "average": 0.6, "peak": 1.2 }
+  }
+}
