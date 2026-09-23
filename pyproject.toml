@@ -38,7 +38,7 @@ dev = [
 ccg = "cloud_cost_guardian.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/<your-username>/cloud-cost-guardian"
+Homepage = "https://github.com/Swayam1705/cloud-cost-guardian"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -54,10 +54,11 @@ extend-exclude = ["artifacts", "data", ".venv"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "S", "N", "C4", "SIM", "RUF"]
-ignore = ["S101"]  # assert is fine in tests
+ignore = ["S101"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S105", "S106", "S108"]
+"tests/*" = ["S101", "S105", "S106", "S108"]
+"tests/**/*.py" = ["S101", "S105", "S106", "S108"]
 
 [tool.mypy]
 python_version = "3.10"
