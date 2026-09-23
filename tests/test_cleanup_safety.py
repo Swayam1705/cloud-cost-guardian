@@ -39,6 +39,8 @@ class FakeSource(InventorySource):
         self.refetch_calls += 1
         if self.fail:
             raise InventorySourceError("simulated API failure")
+        if self.refetch_calls > 1:
+            return Inventory(region=self.current.region)
         return Inventory(
             region=self.current.region,
             volumes=tuple(v for v in self.current.volumes if v.resource_id == resource_id),

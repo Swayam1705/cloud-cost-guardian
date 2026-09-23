@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class CleanupOutcome:
     finding: Finding
-    status: str  # dry-run | blocked | remediated | failed
+    status: str  # dry-run | blocked | remediated | failed | verification_failed | pending
     stage: str  # protection | policy | approval | verification | execution | verify-after | dry-run
     detail: str
     audit: AuditRecord | None = None
@@ -193,12 +193,21 @@ class CleanupService:
 
         after = self._verify_after(fresh)
         gates.metadata["post_verification"] = after
+        if after.startswith("verified:"):
+            post_status = "remediated"
+        elif after.startswith("WARNING:"):
+            post_status = "verification_failed"
+        elif "could not re-fetch" in after:
+            post_status = "verification_pending"
+        else:
+            post_status = "verification_failed"
+
         outcome = self._finish(
             finding,
             scan_id,
             gates,
             dry_run=False,
-            status="remediated",
+            status=post_status,
             stage="verify-after",
             detail=after,
         )

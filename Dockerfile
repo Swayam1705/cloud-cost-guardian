@@ -22,7 +22,7 @@ FROM python:3.12-slim AS runtime
 LABEL org.opencontainers.image.title="cloud-cost-guardian" \
       org.opencontainers.image.description="Zero-cost, local-first AWS waste detection with approval-gated remediation" \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.source="https://github.com/<your-username>/cloud-cost-guardian"
+      org.opencontainers.image.source="https://github.com/Swayam1705/cloud-cost-guardian"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
