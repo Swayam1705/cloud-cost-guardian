@@ -45,3 +45,6 @@ lambda_package.zip
 .idea/
 .DS_Store
 Thumbs.db
+
+# third-party tool state
+.freebuff/
