@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.7
+﻿# syntax=docker/dockerfile:1.7
 # ---------------------------------------------------------------------------
 # Cloud Cost Guardian — small, non-root, secret-free image.
 #   docker build -t cloud-cost-guardian .
@@ -31,14 +31,24 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CCG_ARTIFACTS_DIR=/app/artifacts \
     CCG_DATA_DIR=/app/data
 
-# Non-root user with a writable working directory for artifacts.
-RUN groupadd --system --gid 10001 ccg \
+# Pull Debian security updates published after the base image was built (keeps Trivy clean),
+# then create a non-root user with a writable working directory for artifacts.
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/* \
+ && groupadd --system --gid 10001 ccg \
  && useradd --system --uid 10001 --gid ccg --home-dir /app --no-create-home ccg \
  && mkdir -p /app/artifacts /app/data \
  && chown -R ccg:ccg /app
 
+# Install the wheel, then remove the package tooling: the runtime image needs no installer, and
+# pip/setuptools/wheel are the most common source of HIGH CVEs flagged in slim Python images.
 COPY --from=builder /build/dist/*.whl /tmp/
-RUN pip install /tmp/*.whl && rm -f /tmp/*.whl
+RUN pip install /tmp/*.whl \
+ && rm -f /tmp/*.whl \
+ && pip uninstall -y pip setuptools wheel \
+ && rm -rf /usr/local/lib/python3.12/ensurepip /root/.cache
 
 # Repo-level fixtures are also shipped for users who want to edit them (package has its own copy).
 COPY --chown=ccg:ccg demo /app/demo
