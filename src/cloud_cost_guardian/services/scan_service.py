@@ -17,6 +17,7 @@ from cloud_cost_guardian.models.reports import DetectorRun, ScanReport
 from cloud_cost_guardian.notifications.base import NotificationProvider, NotificationResult
 from cloud_cost_guardian.reporting.json_report import write_json
 from cloud_cost_guardian.reporting.markdown_report import write_markdown
+from cloud_cost_guardian.services.finops import enrich_findings
 from cloud_cost_guardian.reporting.report_builder import ReportBuilder
 from cloud_cost_guardian.sources.base import InventorySource
 
@@ -152,4 +153,5 @@ class ScanService:
         log_event(log, "scan_completed", duration_ms=int((time.perf_counter() - started) * 1000))
         return ScanResult(
             report=report, json_path=json_path, markdown_path=md_path, notification=notification
-        )
+        )enrich_findings(findings)
+        
