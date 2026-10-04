@@ -1,6 +1,6 @@
-﻿# syntax=docker/dockerfile:1.7
+# syntax=docker/dockerfile:1.7
 # ---------------------------------------------------------------------------
-# Cloud Cost Guardian — small, non-root, secret-free image.
+# Cloud Cost Guardian � small, non-root, secret-free image.
 #   docker build -t cloud-cost-guardian .
 #   docker run --rm cloud-cost-guardian scan --mode demo
 # ---------------------------------------------------------------------------
