@@ -38,7 +38,7 @@ jobs:
           python-version: "3.12"
       - run: pip install ruff semgrep
       - name: Ruff security rules
-        run: ruff check . --select S --output-format=github
+        run: ruff check . --extend-select S --output-format=github
       - name: Semgrep (community rules, no account needed)
         run: semgrep scan --config p/python --config p/secrets --config p/dockerfile --error --metrics=off
 
@@ -60,6 +60,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: docker build -t cloud-cost-guardian:scan .
       - uses: aquasecurity/trivy-action@0.28.0
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2,ghcr.io/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1,ghcr.io/aquasecurity/trivy-java-db:1
         with:
           image-ref: cloud-cost-guardian:scan
           format: table

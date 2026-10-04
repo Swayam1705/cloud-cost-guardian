@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cloud_cost_guardian.config import Mode, Settings
+from cloud_cost_guardian.exceptions import ConfigurationError
 from cloud_cost_guardian.demo.fixture_loader import FixtureInventorySource
 from cloud_cost_guardian.demo.state import DemoStateStore
 from cloud_cost_guardian.detectors import DetectorContext
@@ -119,7 +120,7 @@ class Application:
 
     def executor(self, *, allow_aws_destructive: bool) -> RemediationExecutor | None:
         if self.settings.mode is Mode.DEMO:
-            assert self.demo_state is not None
+            if self.demo_state is None:  # pragma: no cover`n                raise ConfigurationError("demo state is not initialised")
             from cloud_cost_guardian.remediation.executors import DemoRemediationExecutor
 
             return DemoRemediationExecutor(self.demo_state)

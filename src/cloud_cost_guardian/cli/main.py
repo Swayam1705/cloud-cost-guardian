@@ -298,7 +298,7 @@ def cmd_cleanup(args: argparse.Namespace) -> int:
 def cmd_demo(args: argparse.Namespace) -> int:
     settings = _settings(args, mode="demo")
     app = Application.build(settings)
-    assert app.demo_state is not None
+    if app.demo_state is None:  # pragma: no cover`n        raise ConfigurationError("demo state is not initialised")
     if args.demo_command == "reset":
         app.demo_state.reset()
         _out("Demo state reset. Next scan will show all fixture resources again.")
