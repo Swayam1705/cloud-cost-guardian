@@ -1,80 +1,172 @@
-"""FinOps Markdown report generation."""
+"""Markdown report rendering — human readable, safe for GitHub/Slack previews."""
 
 from __future__ import annotations
 
+from pathlib import Path
+
+from cloud_cost_guardian.models.findings import Finding
 from cloud_cost_guardian.models.reports import ScanReport
+
+_CATEGORY_LABEL = {
+    "unattached_ebs": "Unattached EBS volumes",
+    "underutilized_ec2": "Potentially underutilized EC2",
+    "unassociated_eip": "Unassociated Elastic IPs",
+    "rds_rightsizing": "RDS right-sizing recommendations",
+    "old_snapshot": "Old snapshots",
+}
+
+
+def _money(value: float) -> str:
+    return f"${value:,.2f}"
+
+
+def _md_escape(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def _status(f: Finding) -> str:
+    if f.protected:
+        return "PROTECTED"
+    if f.cleanup_eligible:
+        return "CLEANUP CANDIDATE"
+    return "RECOMMENDATION"
+
+
+def _evidence_line(f: Finding) -> str:
+    keys = (
+        "age_days",
+        "cpu_average_percent",
+        "cpu_peak_percent",
+        "observed_hours",
+        "size_gib",
+        "volume_size_gib",
+        "instance_type",
+        "instance_class",
+        "suggested_instance_class",
+        "public_ip",
+    )
+    parts = [f"{k}={f.evidence[k]}" for k in keys if k in f.evidence and f.evidence[k] is not None]
+    return ", ".join(parts)
 
 
 def render_markdown(report: ScanReport) -> str:
-    lines = [
-        "# Cloud Cost Guardian — FinOps Intelligence Report",
+    s = report.summary
+    lines: list[str] = [
+        "# Cloud Cost Guardian — Scan Report",
         "",
         f"- **Scan ID:** `{report.scan_id}`",
-        f"- **Timestamp:** {report.timestamp.isoformat()}",
-        f"- **Mode:** {report.settings.mode}",
-        f"- **Region:** {report.settings.aws_region}",
-        f"- **Pricing catalog:** {report.settings.pricing_catalog}",
+        f"- **Timestamp:** {report.scan_timestamp.isoformat()}",
+        f"- **Mode:** {report.mode}",
+        f"- **Region:** {report.region}",
+        f"- **Tool version:** {report.tool_version}",
+        f"- **Pricing catalog:** {report.pricing_catalog}",
         "",
         "## Summary",
         "",
         "| Metric | Value |",
         "|---|---|",
-        f"| Resources scanned | {report.summary.resources_scanned} |",
-        f"| Findings | {report.summary.total_findings} |",
-        f"| Estimated monthly waste | ${report.summary.estimated_monthly_waste:,.2f} |",
-        f"| Estimated annualized waste | ${report.summary.estimated_annual_waste:,.2f} |",
-        f"| Estimated monthly savings | ${report.summary.estimated_monthly_savings:,.2f} |",
-        f"| Protected findings | {report.summary.protected_findings} |",
+        f"| Resources scanned | {s.resources_scanned} |",
+        f"| Findings | {s.total_findings} |",
+        f"| Estimated monthly waste (unprotected) | {_money(s.estimated_monthly_waste)} |",
+        f"| Estimated annualized waste | {_money(s.estimated_annual_waste)} |",
+        f"| Estimated monthly savings | {_money(s.estimated_monthly_savings)} |",
+        f"| Estimated annualized savings | {_money(s.estimated_annual_savings)} |",
+        f"| Protected findings | {s.protected_findings} |",
+        f"| Cleanup eligible | {s.cleanup_eligible} |",
+        f"| Recommendation only | {s.recommendations_only} |",
         "",
-        "## Tag Quality & Ownership",
+        "### Findings by category",
         "",
+        "| Category | Count |",
+        "|---|---|",
     ]
+    for cat, count in s.findings_by_category.items():
+        lines.append(f"| {_CATEGORY_LABEL.get(cat, cat)} | {count} |")
+    lines += ["", "### Findings by severity", "", "| Severity | Count |", "|---|---|"]
+    for sev, count in s.findings_by_severity.items():
+        lines.append(f"| {sev} | {count} |")
 
-    for team, waste in report.summary.waste_by_team.items():
-        lines.append(f"- **{team}**: ${waste:,.2f} / month")
-
-    lines.extend(
-        [
+    if report.findings:
+        lines += [
             "",
-            f"- Resources missing Team tag: {report.summary.missing_team_count}",
-            f"- Resources missing Owner tag: {report.summary.missing_owner_count}",
-            f"- Resources missing Environment tag: {report.summary.missing_environment_count}",
+            "## Findings",
             "",
+            "| Status | Severity | Category | Resource | Monthly cost | Monthly savings "
+            "| Evidence | Recommendation |",
+            "|---|---|---|---|---|---|---|---|",
         ]
-    )
-
-    if not report.findings:
-        lines.extend(["## Top Actions", "", "No findings. Architecture is cost-efficient."])
-    else:
-        lines.extend(
-            [
-                "## Top 10 FinOps Actions",
-                "",
-                "Ordered by deterministic priority model (Cost, Confidence, Actionability).",
-                "",
-            ]
-        )
-
-        # Sort by priority score
-        top_findings = sorted(report.findings, key=lambda x: x.priority_score, reverse=True)[:10]
-
-        for i, f in enumerate(top_findings, 1):
-            lines.extend(
-                [
-                    f"### {i}. {f.category.value.replace('_', ' ').title()} ({f.resource_id})",
-                    f"- **Priority:** {f.priority} (Score: {f.priority_score})",
-                    f"- **Confidence:** {f.confidence}",
-                    f"- **Financial Impact:** ${f.estimated_monthly_cost:,.2f}/mo cost, **${f.estimated_monthly_savings:,.2f}/mo potential savings**",
-                    f"- **Ownership:** Team: {f.team or 'Unknown'} | Owner: {f.owner or 'Unknown'} | Env: {f.environment or 'Unknown'}",
-                    f"- **Protection Status:** {'PROTECTED (Action Blocked)' if f.protected else 'Unprotected'}",
-                    "",
-                    "**Why was this flagged?**",
-                    f"> {f.description}",
-                ]
+        for f in report.findings:
+            lines.append(
+                f"| {_status(f)} | {f.severity.value} "
+                f"| {_CATEGORY_LABEL.get(f.category.value, f.category.value)} "
+                f"| `{f.resource_id}` | {_money(f.estimated_monthly_cost)} "
+                f"| {_money(f.estimated_monthly_savings)} "
+                f"| {_md_escape(_evidence_line(f))} | {f.recommended_action.value} |"
             )
-            for reason in f.confidence_reasons:
-                lines.append(f"> {reason}")
+        lines += ["", "### Reasons", ""]
+        for f in report.findings:
+            lines.append(f"- `{f.resource_id}` — {_md_escape(f.reason)}")
+            if f.protected and f.protection_reason:
+                lines.append(f"  - protected: {_md_escape(f.protection_reason)}")
+            elif not f.cleanup_eligible:
+                lines.append(
+                    "  - not cleanup-eligible: "
+                    f"{_md_escape(str(f.metadata.get('cleanup_policy', '')))}"
+                )
+    else:
+        lines += [
+            "",
+            "## Findings",
+            "",
+            "No findings. Nothing looked wasteful under the current policy.",
+        ]
 
-            lines.extend(["", "**Recommended Action:**", f"`{f.recommended_action.value}`", ""])
+    if report.protected_resources:
+        lines += ["", "## Protected resources (never auto-remediated)", ""]
+        for p in report.protected_resources:
+            lines.append(f"- `{p.resource_id}` ({p.resource_type}) — {_md_escape(p.reason)}")
 
-    return "\n".join(lines) + "\n"
+    candidates = report.cleanup_candidates
+    lines += ["", "## Cleanup candidates", ""]
+    if candidates:
+        lines.append(
+            "Run `ccg cleanup --dry-run` to preview, then "
+            "`ccg cleanup --resource <ID> --approve` per resource."
+        )
+        lines.append("")
+        for f in candidates:
+            lines.append(
+                f"- `{f.resource_id}` — {f.recommended_action.value} — "
+                f"{_money(f.estimated_monthly_savings)}/month"
+            )
+    else:
+        lines.append("None.")
+
+    if report.detector_runs:
+        lines += [
+            "",
+            "## Detector runs",
+            "",
+            "| Detector | Status | Inspected | Findings | Duration (ms) | Error |",
+            "|---|---|---|---|---|---|",
+        ]
+        for d in report.detector_runs:
+            lines.append(
+                f"| {d.name} | {d.status} | {d.resources_inspected} | {d.findings} "
+                f"| {d.duration_ms} | {_md_escape(d.error or '')} |"
+            )
+
+    if report.warnings:
+        lines += ["", "## Warnings", ""]
+        lines += [f"- {_md_escape(w)}" for w in report.warnings]
+
+    lines += ["", "## Limitations", ""]
+    lines += [f"- {lim}" for lim in report.limitations]
+    lines += ["", "## Pricing disclaimer", "", report.pricing_disclaimer, ""]
+    return "\n".join(lines)
+
+
+def write_markdown(report: ScanReport, path: Path) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_markdown(report), encoding="utf-8")
+    return path

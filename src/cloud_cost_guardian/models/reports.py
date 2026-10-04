@@ -36,10 +36,6 @@ class ScanSummary(BaseModel):
     estimated_monthly_savings: float
     estimated_annual_savings: float
     findings_by_category: dict[str, int]
-    waste_by_team: dict[str, float] = Field(default_factory=dict)
-    missing_team_count: int = 0
-    missing_owner_count: int = 0
-    missing_environment_count: int = 0
     findings_by_severity: dict[str, int]
     protected_findings: int
     cleanup_eligible: int

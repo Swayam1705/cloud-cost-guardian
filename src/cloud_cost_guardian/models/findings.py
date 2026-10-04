@@ -77,16 +77,6 @@ class Finding(BaseModel):
     protected: bool
     protection_reason: str | None = None
     detected_at: datetime
-
-    # FinOps Intelligence Layer
-    confidence: str = "LOW"
-    confidence_reasons: list[str] = Field(default_factory=list)
-    priority: str = "P4"
-    priority_score: float = 0.0
-    team: str | None = None
-    owner: str | None = None
-    environment: str | None = None
-
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("detected_at")

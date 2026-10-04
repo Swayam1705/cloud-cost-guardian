@@ -100,24 +100,3 @@ class ReportBuilder:
             policy=policy or {},
             warnings=tuple(warnings),
         )
-        waste_by_team: dict[str, float] = {}
-        missing_team = 0
-        missing_owner = 0
-        missing_env = 0
-
-        for f in findings:
-            if not f.protected:
-                t = f.team or "Unknown"
-                waste_by_team[t] = waste_by_team.get(t, 0.0) + f.estimated_monthly_cost
-
-            if not f.team:
-                missing_team += 1
-            if not f.owner:
-                missing_owner += 1
-            if not f.environment:
-                missing_env += 1
-
-        waste_by_team = {
-            k: round(v, 2)
-            for k, v in sorted(waste_by_team.items(), key=lambda item: item[1], reverse=True)
-        }
